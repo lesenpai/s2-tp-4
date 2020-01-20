@@ -5,27 +5,27 @@
 #include <string>
 #include <vector>
 using namespace std;
-#define ID_TB_EXPRESSION	 0
-#define ID_BTN_1			 1
-#define ID_BTN_2			 2
-#define ID_BTN_3			 3
-#define ID_BTN_4			 4
-#define ID_BTN_5			 5
-#define ID_BTN_6			 6
-#define ID_BTN_7			 7
-#define ID_BTN_8			 8
-#define ID_BTN_9			 9
-#define ID_BTN_0			 10
-#define ID_BTN_COMMA		 11
-#define ID_BTN_EQUAL		 12
-#define ID_BTN_BACKSPACE	 13
-#define ID_BTN_DIV			 14
-#define ID_BTN_MUL			 15
-#define ID_BTN_SUB			 16
-#define ID_BTN_ADD			 17
-#define ID_BTN_MEMORY_SAVE	 18
-#define ID_BTN_MEMORY_READ	 19
-#define ID_BTN_CLEAR		 20
+#define ID_TB_EXPRESSION 	0
+#define ID_BTN_1		1
+#define ID_BTN_2		2
+#define ID_BTN_3		3
+#define ID_BTN_4		4
+#define ID_BTN_5		5
+#define ID_BTN_6		6
+#define ID_BTN_7		7
+#define ID_BTN_8		8
+#define ID_BTN_9		9
+#define ID_BTN_0		10
+#define ID_BTN_COMMA		11
+#define ID_BTN_EQUAL		12
+#define ID_BTN_BACKSPACE	13
+#define ID_BTN_DIV		14
+#define ID_BTN_MUL		15
+#define ID_BTN_SUB		16
+#define ID_BTN_ADD		17
+#define ID_BTN_MEMORY_SAVE	18
+#define ID_BTN_MEMORY_READ	19
+#define ID_BTN_CLEAR		20
 
 HWND tbExpression,
 btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn0,
