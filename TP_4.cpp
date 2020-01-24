@@ -6,21 +6,21 @@
 #include <vector>
 using namespace std;
 #define ID_TB_EXPRESSION 	0
-#define ID_BTN_1		1
-#define ID_BTN_2		2
-#define ID_BTN_3		3
-#define ID_BTN_4		4
-#define ID_BTN_5		5
-#define ID_BTN_6		6
-#define ID_BTN_7		7
-#define ID_BTN_8		8
-#define ID_BTN_9		9
-#define ID_BTN_0		10
-#define ID_BTN_COMMA		11
+#define ID_BTN_1			1
+#define ID_BTN_2			2
+#define ID_BTN_3			3
+#define ID_BTN_4			4
+#define ID_BTN_5			5
+#define ID_BTN_6			6
+#define ID_BTN_7			7
+#define ID_BTN_8			8
+#define ID_BTN_9			9
+#define ID_BTN_0			10
+#define ID_BTN_POINT		11
 #define ID_BTN_EQUAL		12
 #define ID_BTN_BACKSPACE	13
-#define ID_BTN_DIV		14
-#define ID_BTN_MUL		15
+#define ID_BTN_DIV			14
+#define ID_BTN_MUL			15
 #define ID_BTN_SUB		16
 #define ID_BTN_ADD		17
 #define ID_BTN_MEMORY_SAVE	18
@@ -42,9 +42,6 @@ vector<char> operators = vector<char>();
 bool operatorIsLast = false;
 bool pointCharIsLast = false;
 bool exFraseWasPrinted = false;
-bool isCommaSet = false;
-
-
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void InsertToExpression(const LPCWSTR wc);
@@ -53,6 +50,8 @@ void ClearExpression();
 void Equal();
 bool TryParseInt(const string s);
 bool TryParseDouble(const string s);
+wstring getLastNumberFrom(WCHAR* wc);
+bool contains(wstring ws, WCHAR wch);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
 	// Register the window class.
@@ -203,7 +202,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 			btnComma = CreateWindow(L"button", L",",
 									WS_VISIBLE | WS_CHILD | WS_BORDER,
 									XOffsetY2, YOffsetX4, btnWidth, btnHeight,
-									hwnd, (HMENU)ID_BTN_COMMA, NULL, NULL);
+									hwnd, (HMENU)ID_BTN_POINT, NULL, NULL);
 
 			btnEqual = CreateWindow(L"button", L"=",
 									WS_VISIBLE | WS_CHILD | WS_BORDER,
@@ -287,7 +286,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 					InsertToExpression(L"+");
 					break;
 
-				case ID_BTN_COMMA:
+				case ID_BTN_POINT:
 					InsertToExpression(L".");
 					break;
 
@@ -400,6 +399,7 @@ void InsertToExpression(LPCWSTR wc) {
 		SetWindowText(tbExpression, L"0");
 	}
 	GetWindowText(tbExpression, buf, STRING_LENGTH);
+	// text == 0
 	if (wstring(buf) == L"0") {
 		if (wc == L"1" || wc == L"2" || wc == L"3" || wc == L"4" || wc == L"5" || wc == L"6" || wc == L"7" || wc == L"8" || wc == L"9") {
 			SetWindowText(tbExpression, wc);
@@ -411,36 +411,52 @@ void InsertToExpression(LPCWSTR wc) {
 			SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
 		}
 	}
+	// text != 0
 	else {
 		WCHAR bufLastChar = wstring(buf)[wstring(buf).size() - 1];
+		// bufLastChar == [digit]
 		if (bufLastChar == (WCHAR)'0' || bufLastChar == (WCHAR)'1' || bufLastChar == (WCHAR)'2' || bufLastChar == (WCHAR)'3' || bufLastChar == (WCHAR)'4' || bufLastChar == (WCHAR)'5' ||
 			bufLastChar == (WCHAR)'6' || bufLastChar == (WCHAR)'7' || bufLastChar == (WCHAR)'8' || bufLastChar == (WCHAR)'9') {
+			// wc == [digit]
 			if (wc == L"0" || wc == L"1" || wc == L"2" || wc == L"3" || wc == L"4" || wc == L"5" || wc == L"6" || wc == L"7" || wc == L"8" || wc == L"9") {
 				SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
 			}
-			else if (wc == L"." && isCommaSet) {
-				SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
-				isCommaSet = true;
+
+			// wc == [point]
+			else if (wc == L".") {
+				// if the last number doesn't contain a point
+				if (!contains(getLastNumberFrom(buf), WCHAR('.'))) {
+					SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
+				}
 			}
+
+			// wc == [operator]
 			else if (wc == L"/" || wc == L"*" || wc == L"-" || wc == L"+") {
 				SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
 			}
 		}
+		// bufLastChar == [point]
 		else if (bufLastChar == (WCHAR)L'.') {
+			// wc == [digit]
 			if (wc == L"0" || wc == L"1" || wc == L"2" || wc == L"3" || wc == L"4" || wc == L"5" || wc == L"6" || wc == L"7" || wc == L"8" || wc == L"9") {
 				SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
 			}
+			// wc == [operator]
 			else if (wc == L"/" || wc == L"*" || wc == L"-" || wc == L"+") {
 				SetWindowText(tbExpression, (wstring(buf) + L"0" + wc).c_str());
 			}
 		}
+		// bufLastChar == [operator]
 		else if (bufLastChar == (WCHAR)'/' || bufLastChar == (WCHAR)'*' || bufLastChar == (WCHAR)'-' || bufLastChar == (WCHAR)'+') {
+			// wc == [digit]
 			if (wc == L"0" || wc == L"1" || wc == L"2" || wc == L"3" || wc == L"4" || wc == L"5" || wc == L"6" || wc == L"7" || wc == L"8" || wc == L"9") {
 				SetWindowText(tbExpression, (wstring(buf) + wc).c_str());
 			}
+			// wc == [point]
 			else if (wc == L".") {
 				SetWindowText(tbExpression, (wstring(buf) + L"0" + wc).c_str());
 			}
+			// wc == [operator]
 			else if (wc == L"/" || wc == L"*" || wc == L"-" || wc == L"+") {
 				wstring temp = wstring(buf);
 				temp.pop_back();
@@ -549,4 +565,37 @@ void Equal() {
 	}
 	wstring wsTemp = wstring(sTemp.begin(), sTemp.end());
 	SetWindowText(tbExpression, wsTemp.c_str());
+}
+
+/*
+	returns the last number(string) in the string
+*/
+wstring getLastNumberFrom(WCHAR* wc) {
+	wstring s = wstring(wc);
+	wstring num;
+	if (s.empty()) return s;
+	// run from end to begin of s
+	for (int i = s.size() - 1; i >= 0; i--) {
+		WCHAR wch = s[i];
+		if (wch == WCHAR('+') || wch == WCHAR('-') || wch == WCHAR('*') || wch == WCHAR('/')) {
+			reverse(num.begin(), num.end());
+			return num;
+		}
+		num += wch;
+		// i == 0
+		if (!i) {
+			reverse(num.begin(), num.end());
+			return num;
+		}
+	}
+}
+
+/*
+	checks the string for the contents of the specified character
+*/
+bool contains(wstring ws, WCHAR wch) {
+	for (int i = 0; i < ws.size(); i++) {
+		if (ws[i] == wch) return true;
+	}
+	return false;
 }
